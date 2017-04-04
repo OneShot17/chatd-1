@@ -33,7 +33,7 @@ class Connection(threading.Thread):
     # Connection -- Maintains and manages connections with client classes.
     # Runs a thread for each client.
 
-    def __init__(self, client, user, key, server):
+    def __init__(self, client, user, server):
         # Connection(client) takes a client socket and an RSA public key
         # and returns a Connection object
 
@@ -42,9 +42,6 @@ class Connection(threading.Thread):
 
         # Save username so we can utilize it later
         self.user = user
-
-        # Initialize RSA public key
-        self.key = key;
 
         # Save server obj for reference
         self.serv = server;
@@ -73,7 +70,7 @@ class Connection(threading.Thread):
 
             # Decode JSON string into dictionary
             contents = jsonDecoder.decode(jsonCode);
-            
+
             # First, check to see if message is a quit command
             if contents['message'] in QUIT_MSGS:
                 # If so, break the loop.
@@ -92,7 +89,7 @@ class Connection(threading.Thread):
 
         # Encode
         encoded = message.encode('utf-8');
-        
+
         # Encrypt
         #encoded = crypt.encrypt(encoded);
 

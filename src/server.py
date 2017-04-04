@@ -70,15 +70,8 @@ class ChatdServer(object):
             # Retrieve username
             uname = client.recv(4096);
 
-            # Retrieve pubkey
-            pubkey = client.recv(4096);
-
             # Convert bytes to string
             uname = uname.decode('utf-8').strip();
-            pubkey = pubkey.decode('utf-8').strip();
-
-            # Debug print statements
-            print(uname,pubkey);
 
             # Check for user's existence
             if uname == "" or not os.path.isdir("/home/" + uname + "/"):
@@ -88,7 +81,7 @@ class ChatdServer(object):
                 continue;
 
             # Compare to user's authorized_keys
-            with open("/home/" + uname + "/.ssh/authorized_keys",'r') as authKeys:
+            with open("/etc/chatd/authorized_users",'r') as authKeys:
                 # Store contents
                 contents = authKeys.read();
 
@@ -96,15 +89,14 @@ class ChatdServer(object):
             lines = contents.splitlines();
 
             # If given pubkey is in the authorized keys file,
-            if pubkey in lines:
+            if uname in lines:
                 # Print debug statement
-                print ("Key for user " + uname + " accepted.");
-                # Respond with local public key
-                with open("/etc/chatd/keys/id_rsa.pub") as serverKey:
-                    client.send(serverKey.read().encode("utf-8"));
+                print ("User " + uname + " accepted.");
+
+                send_message("User " + uname + " connected.");
 
                 # Create handler class and hand off connection management
-                handler = Client(client, uname, pubkey, self);
+                handler = Client(client, uname, self);
 
                 # Add new handler to client list
                 with self.clientLock:
@@ -112,7 +104,7 @@ class ChatdServer(object):
 
                 # Run handler thread
                 handler.start();
-                    
+
 
         # End listen loop
 
